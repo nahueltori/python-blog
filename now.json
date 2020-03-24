@@ -1,1 +1,8 @@
-{"version":1,"name":"programando-python","builds":[{"src":"**/*.py","use":"@now/python"},{"src":"css/**","use":"@now/static"}]}
+{
+  "version": 1,
+  "name": "programando-python",
+  "builds": [
+    { "src": "**/*.py", "use": "@now/python" },
+    { "src": "static/css/**", "use": "@now/static" }
+  ]
+}
