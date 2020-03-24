@@ -1,0 +1,1 @@
+{"version":1,"name":"programando-python","builds":[{"src":"**/*.py","use":"@now/python"},{"src":"css/**","use":"@now/static"}]}
