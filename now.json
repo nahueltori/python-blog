@@ -1,8 +1,11 @@
 {
-  "version": 1,
+  "version": 2,
   "name": "programando-python",
   "builds": [
-    { "src": "**/*.py", "use": "@now/python" },
+    { "src": "*.py", "use": "@now/python" },
     { "src": "static/css/**", "use": "@now/static" }
+  ],
+  "routes": [
+    { "src": "/.*", "dest": "/"}
   ]
 }
