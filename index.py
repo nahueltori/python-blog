@@ -142,10 +142,6 @@ class FTSEntry(FTSModel):
     class Meta:
         database = database
 
-# Database initialization
-database.create_tables([Entry, FTSEntry], safe=True)
-print("Database created")
-
 def login_required(fn):
     @functools.wraps(fn)
     def inner(*args, **kwargs):
@@ -261,6 +257,11 @@ def clean_querystring(request_args, *keys_to_remove, **new_values):
 @app.errorhandler(404)
 def not_found(exc):
     return Response('<h3>Not found</h3>'), 404
+
+
+# Database initialization
+database.create_tables([Entry, FTSEntry], safe=True)
+print("Database created")
 
 
 if __name__ == '__main__':
