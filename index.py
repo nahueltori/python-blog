@@ -260,6 +260,7 @@ def not_found(exc):
 
 def main():
     database.create_tables([Entry, FTSEntry], safe=True)
+    print("Database created")
 
 if __name__ == '__main__':
     main()
