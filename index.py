@@ -260,12 +260,13 @@ def not_found(exc):
 
 
 def main():
-    # Database initialization
-    database.create_tables([Entry, FTSEntry], safe=True)
-    print("Database created")
     app.run(debug=True)
 
 
+# Database initialization
+database.create_tables([Entry, FTSEntry], safe=True)
+database.close()
+print("Database created")
+
 if __name__ == '__main__':
     main()
-    
