@@ -259,10 +259,13 @@ def not_found(exc):
     return Response('<h3>Not found</h3>'), 404
 
 
-# Database initialization
-database.create_tables([Entry, FTSEntry], safe=True)
-print("Database created")
+def main():
+    # Database initialization
+    database.create_tables([Entry, FTSEntry], safe=True)
+    print("Database created")
+    app.run(debug=True)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    main()
+    
