@@ -110,3 +110,5 @@ dmypy.json
 
 # DB
 *.db
+start.sh
+*.code-workspace

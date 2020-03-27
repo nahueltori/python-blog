@@ -5,3 +5,4 @@ pygments
 markdown
 peewee
 gunicorn
+psycopg2-binary

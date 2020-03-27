@@ -13,7 +13,7 @@ from micawber import bootstrap_basic, parse_html
 from micawber.cache import Cache as OEmbedCache
 from peewee import *
 from playhouse.flask_utils import FlaskDB, get_object_or_404, object_list
-from playhouse.sqlite_ext import *
+from playhouse.postgres_ext import *
 
 
 # Blog configuration values.
@@ -25,7 +25,7 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_KEY")
 APP_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # The playhouse.flask_utils.FlaskDB object accepts database URL configuration.
-DATABASE = 'sqliteext:///%s' % os.path.join(APP_DIR, 'blog.db')
+DATABASE = os.environ.get("DATABASE_URL")
 DEBUG = False
 
 # The secret key is used internally by Flask to encrypt session data stored
@@ -48,6 +48,7 @@ flask_db = FlaskDB(app)
 # The `database` is the actual peewee database, as opposed to flask_db which is
 # the wrapper.
 database = flask_db.database
+ext_db = PostgresqlExtDatabase(DATABASE, user='postgres')
 
 # Configure micawber with the default OEmbed providers (YouTube, Flickr, etc).
 # We'll use a simple in-memory cache so that multiple requests for the same
@@ -61,6 +62,7 @@ class Entry(flask_db.Model):
     content = TextField()
     published = BooleanField(index=True)
     timestamp = DateTimeField(default=datetime.datetime.now, index=True)
+
 
     @property
     def html_content(self):
@@ -84,29 +86,7 @@ class Entry(flask_db.Model):
         if not self.slug:
             self.slug = re.sub(r'[^\w]+', '-', self.title.lower()).strip('-')
         ret = super(Entry, self).save(*args, **kwargs)
-
-        # Store search content.
-        self.update_search_index()
         return ret
-
-    def update_search_index(self):
-        # Create a row in the FTSEntry table with the post content. This will
-        # allow us to use SQLite's awesome full-text search extension to
-        # search our entries.
-        exists = (FTSEntry
-                  .select(FTSEntry.docid)
-                  .where(FTSEntry.docid == self.id)
-                  .exists())
-        content = '\n'.join((self.title, self.content))
-        if exists:
-            (FTSEntry
-             .update({FTSEntry.content: content})
-             .where(FTSEntry.docid == self.id)
-             .execute())
-        else:
-            FTSEntry.insert({
-                FTSEntry.docid: self.id,
-                FTSEntry.content: content}).execute()
 
     @classmethod
     def public(cls):
@@ -129,18 +109,16 @@ class Entry(flask_db.Model):
         # search query, then join the actual Entry data on the matching
         # search result.
         return (Entry
-                .select(Entry, FTSEntry.rank().alias('score'))
-                .join(FTSEntry, on=(Entry.id == FTSEntry.docid))
                 .where(
-                    FTSEntry.match(search) &
+                    Match(Entry.content, search) &
                     (Entry.published == True))
                 .order_by(SQL('score')))
 
-class FTSEntry(FTSModel):
-    content = TextField()
 
+class BaseExtModel(Model):
     class Meta:
-        database = database
+        database = ext_db
+
 
 def login_required(fn):
     @functools.wraps(fn)
@@ -264,7 +242,9 @@ def main():
 
 
 # Database initialization
-database.create_tables([Entry, FTSEntry], safe=True)
+idx = Entry.index(Entry.content, using="GIN")
+Entry.add_index(idx)
+database.create_tables([Entry], safe=True)
 database.close()
 print("Database created")
 
