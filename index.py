@@ -108,11 +108,11 @@ class Entry(flask_db.Model):
         # Query the full-text search index for entries matching the given
         # search query, then join the actual Entry data on the matching
         # search result.
-        return (Entry
+        return (Entry.select()
                 .where(
                     Match(Entry.content, search) &
                     (Entry.published == True))
-                .order_by(SQL('score')))
+                )
 
 
 class BaseExtModel(Model):
