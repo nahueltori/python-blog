@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Blog entries{% endblock %}
+{% block title %}Entradas{% endblock %}
 
-{% block content_title %}{% if search %}Search "{{ search }}"{% else %}Blog entries{% endif %}{% endblock %}
+{% block content_title %}{% if search %}Búsqueda "{{ search }}"{% else %}Entradas{% endif %}{% endblock %}
 
 {% block content %}
   {% for entry in object_list %}
@@ -11,9 +11,9 @@
         {{ entry.title }}
       </a>
     </h3>
-    <p>Created {{ entry.timestamp.strftime('%d/%m/%Y at %H:%M:%S') }}</p>
+    <p>Creado el {{ entry.timestamp.strftime('%d/%m/%Y a las %H:%M:%S') }}</p>
   {% else %}
-    <p>No entries have been created yet.</p>
+    <p>No hay posteos todavía.</p>
   {% endfor %}
   {% include "includes/pagination.html" %}
 {% endblock %}

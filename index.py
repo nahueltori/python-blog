@@ -26,6 +26,8 @@ APP_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # The playhouse.flask_utils.FlaskDB object accepts database URL configuration.
 DATABASE = os.environ.get("DATABASE_URL")
+if not DATABASE:
+    DATABASE = 'sqliteext:///{}'.format(os.path.join(APP_DIR, 'blog.db'))
 DEBUG = False
 
 # The secret key is used internally by Flask to encrypt session data stored
@@ -243,7 +245,8 @@ def main():
 
 # Database initialization
 idx = Entry.index(Entry.content, using="GIN")
-Entry.add_index(idx)
+if DATABASE[0:6] != 'sqlite':
+    Entry.add_index(idx)
 database.create_tables([Entry], safe=True)
 database.close()
 print("Database created")
